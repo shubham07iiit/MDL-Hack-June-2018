@@ -49,7 +49,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'dashboard_workflow.urls'
+ROOT_URLCONF = 'clients_workflow.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'dashboard_workflow.wsgi.application'
+WSGI_APPLICATION = 'clients_workflow.wsgi.application'
 
 
 # Database

@@ -18,6 +18,6 @@ from django.urls import path
 from django.conf.urls import include, url
 
 urlpatterns = [
-    url(r'^api/1', include('user_dashboard_actions.urls')),
+    url(r'^api/1', include('user_sessions_events.urls')),
     url(r'^admin/', admin.site.urls),
 ]
