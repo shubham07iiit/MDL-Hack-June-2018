@@ -40,7 +40,7 @@ def process(trans_list):
     # // validation : transaction start should be yellow
     for trans in trans_list:
         if trans.events_arr[0].color!= EventColor.Yellow:
-            print "Wrong transaction "
+            print("Wrong transaction ")
             return []
         sequence_str=""
         for event in trans.events_arr:

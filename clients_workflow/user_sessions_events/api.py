@@ -3,7 +3,7 @@ from rest_framework.decorators import (
 )
 from rest_framework.response import Response
 import traceback
-from .fetch_data_from_redshift import FetchDataFromRedhsift
+from .fetch_data_from_redshift import FetchDataFromDatabase
 from .generate_graph import Graphgenerator
 
 @api_view(['POST'])
@@ -16,8 +16,8 @@ def get_user_behavior(request):
         end_date = payload.get('end_date')
         user_id = payload.get('user_id')
 
-        redshift_queries = FetchDataFromRedhsift(payload)
-        redshift_queries.connect_to_redshift()
+        redshift_queries = FetchDataFromDatabase(payload)
+        redshift_queries.connect_to_database()
         redshift_queries.query_database()
 
         # graph_generator = Graphgenerator([1,2])

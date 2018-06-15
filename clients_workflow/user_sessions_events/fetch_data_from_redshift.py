@@ -21,7 +21,7 @@ class Transition(object):
     user_id = None
 
 
-class FetchDataFromRedhsift(object):
+class FetchDataFromDatabase(object):
 
     events = {
         'web_date': ['IsQuickFilter', 'Range'],
@@ -71,16 +71,7 @@ class FetchDataFromRedhsift(object):
         self.user_id = payload.get('user_id')
         self.r_cur = ''
 
-    def connect_to_redshift(self):
-        # r_conn = psycopg2.connect(database="mileiq", user="mileiq", password="aYTaRx7LdcCMRDf8", port=5439,
-        #                           host="miq-redshit-test.cuumkgtcwrly.us-east-1.redshift.amazonaws.com",
-        #                           connect_timeout=0)
-
-        # server = 'mdlazureeastus.database.windows.net'
-        # database = 'MileIQTest'
-        # username = 'shusing@microsoft.com'
-        # password = 'MsSeventh@123'
-        # driver = '{ODBC Driver 13 for SQL Server}'
+    def connect_to_database(self):
         r_conn = pyodbc.connect('Driver={ODBC Driver 13 for SQL Server};Server=tcp:mdlazureeastus.database.windows.net,'
                                 '1433;Database=MileIQTest;Uid=shusing@microsoft.com;Pwd=MsSeventh@123;'
                                 'Encrypt=yes;''TrustServerCertificate=no;Connection Timeout=300;'
@@ -90,104 +81,100 @@ class FetchDataFromRedhsift(object):
         self.r_cur = r_conn.cursor()
 
     def store_user_sessions(self, user, curr_user_events):
-        all_events = []
-        i = 0
-        for event in curr_user_events:
-            if event[NAME] == 'web_login' or event[NAME] == 'app_LogIn' or event[NAME] == 'app_LogIn' or event[NAME] == 'app_Launch':
-                if all_events:
-                    transition = Transition
-                    transition.events = all_events
-                    transition.user_id = user
-                    self.session_transitions.append(transition)
-                    i += 1
-                all_events = []
-                continue
+        with open('sessions_data_final.csv', "a", newline='') as csvfile:
+            all_events = []
+            time_stamps = ''
+            for event in curr_user_events:
+                if event[0] == 'web_login' or event[0] == 'app_LogIn' or event[0] == 'app_Launch':
+                    if all_events:
+                        all_events.insert(0, user)
+                        all_events.insert(1, time_stamps)
+                        wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+                        wr.writerow(all_events)
+                    all_events = []
+                    time_stamps = ''
+                    continue
 
-            new_event = Event
-            new_event.color = 'GREEN'
-            new_event.time_stamp = event[TIME]
-
-            properties = event[PROPERTIES]
-            properties = json.loads(properties)
-
-            if properties:
-                for key, value in properties:
-                    new_event.name = event[NAME] + '-' + str(key) + '-' + str(value)
-            else:
-                new_event.name = event[NAME]
-
-            # if event[NAME] not in self.events or not self.events[event[NAME]]:
-            #     new_event.name = event[NAME]
-            # else:
-            #     for property in self.events[event[NAME]]:
-            #         if property in properties:
-            #             new_event.name = event[NAME] + '-' + property + '-' + str(properties[property])
-            #         else:
-            #             new_event.name = event[NAME]
-            all_events.append(new_event)
-        if all_events:
-            transition = Transition()
-            transition.events = all_events
-            transition.user_id = user
-            self.session_transitions.append(transition)
+                # new_event = Event
+                # new_event.color = 'GREEN'
+                # new_event.time_stamp = event[0]
+                #
+                # properties = event[2]
+                # properties = json.loads(properties)
+                #
+                # if properties:
+                #     for key, value in properties:
+                #         new_event.name = event[1] + '-' + str(key) + '-' + str(value)
+                # else:
+                # new_event.name = event[1]
+                time_stamps = time_stamps + '_' + str(event[1])
+                all_events.append(event[0])
+            if all_events:
+                all_events.insert(0, user)
+                all_events.insert(1, time_stamps)
+                wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+                wr.writerow(all_events)
 
 
 
     def query_database(self):
-        filename = "events_data.csv"
-        fields = []
-        rows = []
-        with open(r'D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\user_sessions_events\events_data.csv', 'r') as csvfile:
-            # creating a csv reader object
-            csvreader = csv.reader(csvfile)
-            for row in csvreader:
-                rows.append(row)
-                datetime_object = datetime.strptime(row[1][:-8], '%Y-%m-%d %H:%M:%S')
-                tuple = (datetime_object, row[2], row[3])
-                if row[0] in self.user_sessions_dict:
-                    # (self.user_sessions_dict[row[0]]).append(tuple)
-                    bisect.insort(self.user_sessions_dict[row[0]], tuple)
-                else:
-                    tuple_list = []
-                    tuple_list.append(tuple)
-                    self.user_sessions_dict[row[0]] = tuple_list
-
-            # for key in self.user_sessions_dict:
-            #     self.user_sessions_dict[key] = (self.user_sessions_dict[key]).sort(key=lambda x: x[0])
-
-
-
-
-        # query = None
-        # if self.num_users is not None:
-        #     query = ("""SELECT TOP {0} mixpanel_distinct_id
-        #                 FROM sec_user
-        #                 WHERE is_premium = '1';""".format(self.num_users))
-        # else:
-        #     query = ("""SELECT mixpanel_distinct_id
-        #                 FROM sec_user
-        #                 WHERE is_premium = '1';""")
-
-        # result = self.r_cur.execute(query)
-        # all_users = self.r_cur.fetchall()
-        # self.num_users = len(all_users)
-        # active_users = 0
-        # for i in range(0, int(self.num_users)):
-        #     user = all_users[i][0]
-        #     print(user)
-        #     query = ("""SELECT * from  mp.event
-        #                 WHERE distinct_id = '{0}' AND
-        #                 NAME LIKE 'web%' OR NAME LIKE 'app%'
-        #                 AND TIME >= '{1}' AND TIME <= '{2}'
-        #                 ORDER BY time ASC;""".format(user, self.start_date, self.end_date));
-        #     result = self.r_cur.execute(query)
-        #     curr_user_events= self.r_cur.fetchall()
+        i = 0
+        # try:
+        #     filename = "events_data.csv"
+        #     with open(r'D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\user_sessions_events\splitted_file\xaa', 'r') as csvfile:
+        #         # creating a csv reader object
+        #         csvreader = csv.reader(csvfile)
+        #         for row in csvreader:
+        #             i += 1
+        #             datetime_object = datetime.strptime(row[1][:-8], '%Y-%m-%d %H:%M:%S')
+        #             tuple = (datetime_object, row[2], row[3])
+        #             if row[0] in self.user_sessions_dict:
+        #                 # (self.user_sessions_dict[row[0]]).append(tuple)
+        #                 bisect.insort(self.user_sessions_dict[row[0]], tuple)
+        #             else:
+        #                 tuple_list = []
+        #                 tuple_list.append(tuple)
+        #                 self.user_sessions_dict[row[0]] = tuple_list
+        #             if i == 100000:
+        #                 break
         #
-        #     if curr_user_events:
-        #         active_users += 1
-        #         self.store_user_sessions(user, curr_user_events)
-        #     print('Hello')
-        # print(active_users)
+        #     for key in self.user_sessions_dict:
+        #         # self.user_sessions_dict[key] = (self.user_sessions_dict[key]).sort(key=lambda x: x[0])
+        #         self.store_user_sessions(key, self.user_sessions_dict[key])
+        # except:
+        #     for key in self.user_sessions_dict:
+        #         # self.user_sessions_dict[key] = (self.user_sessions_dict[key]).sort(key=lambda x: x[0])
+        #         self.store_user_sessions(key, self.user_sessions_dict[key])
+        query = None
+        if self.num_users is not None:
+            query = ("""SELECT TOP {0} mixpanel_distinct_id
+                        FROM sec_user
+                        WHERE is_premium = '1';""".format(self.num_users))
+        else:
+            query = ("""SELECT mixpanel_distinct_id
+                        FROM sec_user
+                        WHERE is_premium = '1';""")
+
+        result = self.r_cur.execute(query)
+        all_users = self.r_cur.fetchall()
+        self.num_users = len(all_users)
+        active_users = 0
+        for i in range(0, int(self.num_users)):
+            user = all_users[i][0]
+            print(user)
+            query = ("""SELECT name, time, properties from  mp.event
+                        WHERE distinct_id = '{0}' AND
+                        (NAME LIKE 'web%' OR NAME LIKE 'app%')
+                        AND TIME >= '{1}' AND TIME <= '{2}'
+                        ORDER BY time ASC;""".format(user, self.start_date, self.end_date))
+            result = self.r_cur.execute(query)
+            curr_user_events= self.r_cur.fetchall()
+
+            if curr_user_events:
+                active_users += 1
+                self.store_user_sessions(user, curr_user_events)
+            print('Hello')
+        print(active_users)
 
 
 
