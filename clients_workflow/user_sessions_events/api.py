@@ -18,10 +18,10 @@ def get_user_behavior(request):
 
         redshift_queries = FetchDataFromRedhsift(payload)
         redshift_queries.connect_to_redshift()
-        redshift_queries.query_redshift()
+        redshift_queries.query_database()
 
-        graph_generator = Graphgenerator([1,2])
-        graph_generator.fetch_data_from_workflow()
+        # graph_generator = Graphgenerator([1,2])
+        # graph_generator.fetch_data_from_workflow()
 
 
         return Response({"status": 200,
