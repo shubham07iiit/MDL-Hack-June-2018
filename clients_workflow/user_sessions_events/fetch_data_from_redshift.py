@@ -173,8 +173,8 @@ class FetchDataFromDatabase(object):
             if curr_user_events:
                 active_users += 1
                 self.store_user_sessions(user, curr_user_events)
-            print('Hello')
-        print(active_users)
+            print(active_users)
+        print('Hello' + str(active_users))
 
 
 

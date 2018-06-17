@@ -1,3 +1,5 @@
+import csv
+
 class Test:
     def __init__(self, key):
         self.key = key
@@ -94,7 +96,7 @@ def mergeProcessedSeq(sorted_x):
             return mergedList
 
     except Exception as excp:
-        print "Exception is :" +excp.message
+        print("Exception is :" +excp.message)
 
     return mergedList
 
@@ -112,6 +114,20 @@ def getEventColor(eventName):
         return EventColor.Yellow
     else:
         return EventColor.Green
+
+
+def getTransListFromCsv():
+    trans_list = []
+    with open(r'D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        for row in csvreader:
+            event_arr = []
+            for event in row[2:]:
+                this_event = Event(event, getEventColor(event))
+                event_arr.append(this_event)
+            this_transition = WebTransaction(event_arr, 1)
+            trans_list.append(this_transition)
+    return trans_list
 
 def getTransList():
     S = Event("app_Launch", EventColor.Yellow)
@@ -139,7 +155,7 @@ def getTransList():
 
 if __name__ == "__main__":
 
-    transList= getTransList()
+    transList= getTransListFromCsv()
     scoredSequenceDict= process(transList)
 
     import operator
@@ -148,17 +164,17 @@ if __name__ == "__main__":
 
     #Print sorted sequence
     for key, value in sorted_x:
-        print key+ " "+ str(value)
-    print "\n"
+        print(key+ " "+ str(value))
+    print("\n")
 
     #Print Merged Sequence
-    print "Merged Sequence is"
+    print("Merged Sequence is")
     mergedList= mergeProcessedSeq(sorted_x)
     for item in mergedList:
-        print item.key
+        print(item.key)
         for subItems in item.scoredSequenceList:
-            print subItems
-        print "\n"
+            print(subItems)
+        print("\n")
 
 
 
