@@ -13,10 +13,7 @@ YELLOW_EVENTS = {"app_loggedIn",
                  "app_viewdrivelist",
                  "app_signedup"}
 
-class Test:
-    def __init__(self, key):
-        self.key = key
-        self.scoredSequenceList = []
+
 
 
 class EventColor:
@@ -120,6 +117,10 @@ def sortKey(eventList):
             lasteventName=x.name
     return sortedStr
 
+class Test:
+    def __init__(self, key):
+        self.key = key
+        self.scoredSequenceList = []
 
 def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
 
@@ -138,8 +139,9 @@ def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
                 mergedList.append(Test(sortedStr))
                 idx += 1
 
-            mergedList[dict[sortedStr]].scoredSequenceList.append(listSequenceDict[key])
-            mergedList[dict[sortedStr]].scoredSequenceList.append(value)
+            mergedList[dict[sortedStr]].scoredSequenceList.append((listSequenceDict[key], value))
+            # mergedList[dict[sortedStr]].scoredSequenceList.append(listSequenceDict[key])
+            # mergedList[dict[sortedStr]].scoredSequenceList.append(value)
 
         return mergedList
 
