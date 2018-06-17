@@ -1,4 +1,5 @@
 from __future__ import print_function
+import csv
 
 YELLOW_EVENTS = {"app_loggedIn",
                  "app_bgtask_started",
@@ -6,8 +7,10 @@ YELLOW_EVENTS = {"app_loggedIn",
                  "app_install",
                  "web_login",
                  "app_EmailRequest",
+                 "app_foreground",
                  "app_bgtask_resume_attempt",
-                 "app_LogIn"}
+                 "app_LogIn",
+                 "app_viewdrivelist"}
 
 class Test:
     def __init__(self, key):
@@ -26,7 +29,7 @@ class Event:
         self.color = color
 
     def __repr__(self):
-        return self.name + self.color
+        return self.name
 
 
 class WebTransaction:
@@ -139,9 +142,6 @@ def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
     return mergedList
 
 
-
-
-
 def getEventColor(eventName):
     if eventName in YELLOW_EVENTS:
         return EventColor.Yellow
@@ -149,14 +149,18 @@ def getEventColor(eventName):
         return EventColor.Green
 
 
-def getTransListFromCsv():
+def getTransListFromCsv(limit):
     trans_list = []
 
     with open(r'C:\Users\prgoel\PycharmProjects\MDL-Hack-June-2018\clients_workflow\sessions_data_final.csv', "r") as csvfile:
     # with open('D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
-        import csv
+
         csvreader = csv.reader(csvfile)
+        count=0
         for row in csvreader:
+            if count == limit:
+                break
+            count=count+1
             event_arr = []
             for event in row[2:]:
                 this_event = Event(event.lower(), getEventColor(event))
@@ -194,7 +198,7 @@ def getTransList():
 if __name__ == "__main__":
 
     # transList = getTransList()
-    transList= getTransListFromCsv()
+    transList= getTransListFromCsv(100)
     index = 0
     for trans in transList:
         print("Processing transaction: {} event length: {} ".format(index, len(trans.events_arr)))
@@ -206,21 +210,24 @@ if __name__ == "__main__":
     # Sort Scored sequence
     import operator
     from operator import itemgetter
-
     sortedScoredSequenceDict = sorted(scoredSequenceDict.items(), key=operator.itemgetter(1), reverse=True)
-    for key, value in sortedScoredSequenceDict:
-        eventList = listSequenceDict[key]
-        for e in eventList:
-            print(e.name + "->", end="")
-        print(str(value))
-    print("\n")
+    # for key, value in sortedScoredSequenceDict:
+    #     eventList = listSequenceDict[key]
+    #     for e in eventList:
+    #         print(e.name + "->", end="")
+    #     print(str(value))
+    # print("\n")
 
     # Merge Sequence
     mergedList = mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict)
     print("Merged Sequence is")
-
+    # with open('merged_sessions_data_final.csv', "a", newline='') as csvfile:
     for item in mergedList:
         print("key: "+ item.key)
+        # wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+        # wr.writerow(item.key)
+
         for subItems in item.scoredSequenceList:
             print(subItems)
+            # wr.writerow(subItems)
         print("\n")
