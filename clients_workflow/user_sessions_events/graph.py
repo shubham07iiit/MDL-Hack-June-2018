@@ -61,10 +61,10 @@ def process(trans_list):
 
         sequence_list = []
         sequence_str = ""
-        if trans.events_arr[0].name.startswith("app_"):
+        if trans.events_arr[0].name.startswith("app"):
             sequence_list.append(Event(APP_START_EVENT, EventColor.Yellow))
             sequence_str = APP_START_EVENT
-        elif trans.events_arr[0].name.startswith("web_"):
+        elif trans.events_arr[0].name.startswith("web"):
             sequence_list.append(Event(WEB_START_EVENT, EventColor.Yellow))
             sequence_str = APP_START_EVENT
         else:
@@ -103,6 +103,7 @@ def sortKey(eventList):
 
 
 def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
+
     try:
         dict = {}
         mergedList = []  # list of key, scoredsequnce list
@@ -140,6 +141,19 @@ def getEventColor(eventName):
         return EventColor.Green
 
 
+def getTransListFromCsv():
+    trans_list = []
+    with open(r'D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+        csvreader = csv.reader(csvfile)
+        for row in csvreader:
+            event_arr = []
+            for event in row[2:]:
+                this_event = Event(event.lower(), getEventColor(event))
+                event_arr.append(this_event)
+            this_transition = WebTransaction(event_arr, 1)
+            trans_list.append(this_transition)
+    return trans_list
+
 def getTransList():
     # S = Event("app_Launch", EventColor.Yellow)
     A = Event("app_A", EventColor.Green)
@@ -169,6 +183,8 @@ def getTransList():
 if __name__ == "__main__":
 
     transList = getTransList()
+    # transList= getTransListFromCsv()
+    # scoredSequenceDict= process(transList)
 
     # Calculate scores
     scoredSequenceDict, listSequenceDict = process(transList)
@@ -188,6 +204,7 @@ if __name__ == "__main__":
     # Merge Sequence
     mergedList = mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict)
     print("Merged Sequence is")
+
     for item in mergedList:
         print(item.key)
         for subItems in item.scoredSequenceList:
