@@ -10,7 +10,8 @@ YELLOW_EVENTS = {"app_loggedIn",
                  "app_foreground",
                  "app_bgtask_resume_attempt",
                  "app_LogIn",
-                 "app_viewdrivelist"}
+                 "app_viewdrivelist",
+                 "app_signedup"}
 
 class Test:
     def __init__(self, key):
@@ -81,19 +82,26 @@ def process(transList):
             print("Wrong transaction ")
             return []
 
+        last_event_color= EventColor.Yellow
+
         for event in trans.events_arr:
             if event.color == EventColor.Yellow:
-                sequence_str = event.name
-                sequence_list = []
-                sequence_list.append(event)
-
+                if last_event_color==EventColor.Green:
+                    sequence_str = event.name
+                    sequence_list = []
+                    sequence_list.append(event)
+                else:
+                    sequence_str += event.name
+                    sequence_list.append(event)
             else:
-                sequence_list.append(event)
                 sequence_str += event.name
+                sequence_list.append(event)
                 if sequence_str not in scoredSequenceDict:
                     scoredSequenceDict[sequence_str] = 0
                     listSequenceDict[sequence_str] = list(sequence_list)
                 scoredSequenceDict[sequence_str] = scoredSequenceDict[sequence_str] + 1
+
+            last_event_color = event.color
 
         # print trans.__repr__()
         # for event in trans.events_arr:
@@ -163,7 +171,7 @@ def getTransListFromCsv(limit):
             count=count+1
             event_arr = []
             for event in row[2:]:
-                this_event = Event(event.lower(), getEventColor(event))
+                this_event = Event(event.lower(), getEventColor(event.lower()))
                 event_arr.append(this_event)
             this_transition = WebTransaction(event_arr, 1)
             trans_list.append(this_transition)
@@ -200,7 +208,7 @@ if __name__ == "__main__":
     # transList = getTransList()
     transList= getTransListFromCsv(100)
     index = 0
-    for trans in transList:
+    for trans in transList:git add 
         print("Processing transaction: {} event length: {} ".format(index, len(trans.events_arr)))
         index += 1
 
