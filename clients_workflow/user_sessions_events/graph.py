@@ -57,14 +57,17 @@ APP_START_EVENT = "app_Launch"
 WEB_START_EVENT = "web_login"
 
 
-def process(trans_list):
+def process(transList):
     scoredSequenceDict = {}
     listSequenceDict = {}
     # // validation : transaction start should be yellow
-    for trans in trans_list:
 
+    for trans in transList:
         sequence_list = []
         sequence_str = ""
+        if not trans.events_arr:
+            continue
+
         if trans.events_arr[0].name.startswith("app"):
             sequence_list.append(Event(APP_START_EVENT, EventColor.Yellow))
             sequence_str = APP_START_EVENT
@@ -148,7 +151,10 @@ def getEventColor(eventName):
 
 def getTransListFromCsv():
     trans_list = []
-    with open(r'D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+
+    with open(r'C:\Users\prgoel\PycharmProjects\MDL-Hack-June-2018\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+    # with open('D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+        import csv
         csvreader = csv.reader(csvfile)
         for row in csvreader:
             event_arr = []
@@ -187,9 +193,12 @@ def getTransList():
 
 if __name__ == "__main__":
 
-    transList = getTransList()
-    # transList= getTransListFromCsv()
-    # scoredSequenceDict= process(transList)
+    # transList = getTransList()
+    transList= getTransListFromCsv()
+    index = 0
+    for trans in transList:
+        print("Processing transaction: {} event length: {} ".format(index, len(trans.events_arr)))
+        index += 1
 
     # Calculate scores
     scoredSequenceDict, listSequenceDict = process(transList)
