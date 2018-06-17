@@ -160,8 +160,8 @@ def getEventColor(eventName):
 def getTransListFromCsv(limit):
     trans_list = []
 
-    with open(r'C:\Users\prgoel\PycharmProjects\MDL-Hack-June-2018\clients_workflow\sessions_data_final.csv', "r") as csvfile:
-    # with open('D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+    # with open(r'C:\Users\prgoel\PycharmProjects\MDL-Hack-June-2018\clients_workflow\sessions_data_final.csv', "r") as csvfile:
+    with open('D:\MDL_Codebase\MDLHack-June-2018\dashboard_workflow\clients_workflow\sessions_data_final.csv', "r") as csvfile:
 
         csvreader = csv.reader(csvfile)
         count=0
@@ -229,13 +229,15 @@ if __name__ == "__main__":
     # Merge Sequence
     mergedList = mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict)
     print("Merged Sequence is")
-    # with open('merged_sessions_data_final.csv', "a", newline='') as csvfile:
-    for item in mergedList:
-        print("key: "+ item.key)
-        # wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
-        # wr.writerow(item.key)
+    with open('merged_sessions_data_final', "a") as the_file:
+        for item in mergedList:
+            print("key: "+ item.key)
+            # wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+            the_file.write("key: "+item.key+"\n")
 
-        for subItems in item.scoredSequenceList:
-            print(subItems)
-            # wr.writerow(subItems)
-        print("\n")
+            for subItems in item.scoredSequenceList:
+                print(subItems)
+                for sub_item in subItems:
+                    the_file.write(sub_item)
+                the_file.write("\n")
+            print("\n")
