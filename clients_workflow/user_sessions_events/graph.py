@@ -110,7 +110,7 @@ def sortKey(eventList):
 
     sortedStr = eventList[0].name
     lasteventName = eventList[0].name
-    xyz = sorted(eventList[1:], key=lambda x:x.name)
+    xyz = sorted(eventList[1:], key= lambda x:x.name)
     for x in xyz:
         if x.name!=lasteventName:
             sortedStr += " " + x.name
