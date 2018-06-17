@@ -48,9 +48,9 @@ def process(trans_list):
     # // validation : transaction start should be yellow
     for trans in trans_list:
         sequence_str = ""
-        if trans.events_arr[0].name.startswith("app_"):
+        if trans.events_arr[0].name.startswith("app"):
             sequence_str=APP_START_EVENT
-        elif trans.events_arr[0].name.startswith("web_"):
+        elif trans.events_arr[0].name.startswith("web"):
             sequence_str=APP_START_EVENT
         else:
             print("Wrong transaction ")
@@ -74,8 +74,10 @@ def process(trans_list):
 
     return scoredSequenceDict
 
+
 def sortKey(key):
     return key[0]+''.join(sorted(key[1:]))
+
 
 def mergeProcessedSeq(sorted_x):
     try:
@@ -123,7 +125,7 @@ def getTransListFromCsv():
         for row in csvreader:
             event_arr = []
             for event in row[2:]:
-                this_event = Event(event, getEventColor(event))
+                this_event = Event(event.lower(), getEventColor(event))
                 event_arr.append(this_event)
             this_transition = WebTransaction(event_arr, 1)
             trans_list.append(this_transition)
