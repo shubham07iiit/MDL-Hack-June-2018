@@ -208,7 +208,7 @@ if __name__ == "__main__":
     # transList = getTransList()
     transList= getTransListFromCsv(100)
     index = 0
-    for trans in transList:git add 
+    for trans in transList:
         print("Processing transaction: {} event length: {} ".format(index, len(trans.events_arr)))
         index += 1
 
