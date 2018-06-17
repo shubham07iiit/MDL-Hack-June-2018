@@ -1,8 +1,12 @@
 from __future__ import print_function
+
 YELLOW_EVENTS = {"app_loggedIn",
                  "app_bgtask_started",
                  "app_Launch",
+                 "app_install",
                  "web_login",
+                 "app_EmailRequest",
+                 "app_bgtask_resume_attempt",
                  "app_LogIn"}
 
 class Test:
@@ -92,14 +96,15 @@ def process(trans_list):
 
 
 def sortKey(eventList):
-    for a in eventList:
-        print(a)
-    print(eventList)
-    # sortedStr = eventList[0].name
-    # xyz = sorted(eventList[1:])
-    # for x in xyz:
-    #     sortedStr += " " + x.name
-    # return sortedStr
+
+    sortedStr = eventList[0].name
+    lasteventName = eventList[0].name
+    xyz = sorted(eventList[1:])
+    for x in xyz:
+        if x.name!=lasteventName:
+            sortedStr += " " + x.name
+            lasteventName=x.name
+    return sortedStr
 
 
 def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
@@ -112,14 +117,14 @@ def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
 
 
         for key, value in sortedScoredSequenceDict:
-            sortedStr = sortKey(listSequenceDict(key))
+            sortedStr = sortKey(listSequenceDict[key])
 
             if sortedStr not in dict:
                 dict[sortedStr] = idx
                 mergedList.append(Test(sortedStr))
                 idx += 1
 
-            mergedList[dict[sortedStr]].scoredSequenceList.append(listSequenceDict(key))
+            mergedList[dict[sortedStr]].scoredSequenceList.append(listSequenceDict[key])
             mergedList[dict[sortedStr]].scoredSequenceList.append(value)
 
         return mergedList
@@ -174,8 +179,8 @@ def getTransList():
 
     t7 = WebTransaction([A, A], 1)
 
-    trans_list = [t1]
-    # trans_list = [t1, t2, t3, t4, t5, t6, t7]
+    # trans_list = [t1]
+    trans_list = [t1, t2, t3, t4, t5, t6, t7]
 
     return trans_list
 
@@ -206,7 +211,7 @@ if __name__ == "__main__":
     print("Merged Sequence is")
 
     for item in mergedList:
-        print(item.key)
+        print("key: "+ item.key)
         for subItems in item.scoredSequenceList:
             print(subItems)
         print("\n")
