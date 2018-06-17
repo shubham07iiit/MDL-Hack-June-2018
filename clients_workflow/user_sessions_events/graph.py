@@ -110,14 +110,14 @@ def sortKey(eventList):
 
     sortedStr = eventList[0].name
     lasteventName = eventList[0].name
-    xyz = sorted(eventList[1:])
+    xyz = sorted(eventList[1:], key=lambda x:x.name)
     for x in xyz:
         if x.name!=lasteventName:
             sortedStr += " " + x.name
             lasteventName=x.name
     return sortedStr
 
-class Test:
+class NoTest:
     def __init__(self, key):
         self.key = key
         self.scoredSequenceList = []
@@ -136,7 +136,7 @@ def mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict):
 
             if sortedStr not in dict:
                 dict[sortedStr] = idx
-                mergedList.append(Test(sortedStr))
+                mergedList.append(NoTest(sortedStr))
                 idx += 1
 
             mergedList[dict[sortedStr]].scoredSequenceList.append((listSequenceDict[key], value))
@@ -159,7 +159,7 @@ def getEventColor(eventName):
         return EventColor.Green
 
 
-def getTransListFromCsv(limit):
+def getTransListFromCsv(limit = 50000):
     trans_list = []
 
     # with open(r'C:\Users\prgoel\PycharmProjects\MDL-Hack-June-2018\clients_workflow\sessions_data_final.csv', "r") as csvfile:
@@ -168,8 +168,8 @@ def getTransListFromCsv(limit):
         csvreader = csv.reader(csvfile)
         count=0
         for row in csvreader:
-            if count == limit:
-                break
+            # if count == limit:
+            #     break
             count=count+1
             event_arr = []
             for event in row[2:]:
@@ -208,7 +208,7 @@ def getTransList():
 if __name__ == "__main__":
 
     # transList = getTransList()
-    transList= getTransListFromCsv(100)
+    transList= getTransListFromCsv()
     index = 0
     for trans in transList:
         print("Processing transaction: {} event length: {} ".format(index, len(trans.events_arr)))
@@ -231,15 +231,32 @@ if __name__ == "__main__":
     # Merge Sequence
     mergedList = mergeProcessedSeq(sortedScoredSequenceDict, listSequenceDict)
     print("Merged Sequence is")
-    with open('merged_sessions_data_final', "a") as the_file:
-        for item in mergedList:
-            print("key: "+ item.key)
-            # wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
-            the_file.write("key: "+item.key+"\n")
+    # with open('merged_sessions_data_final', "a") as the_file:
+    #     for item in mergedList:
+    #         print("key: "+ item.key)
+    #         # wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+    #         the_file.write("key: "+item.key+"\n")
+    #
+    #         for subItems in item.scoredSequenceList:
+    #             # print(', '.join(str(e) for e in subItems[0]))
+    #             # for sub_item in subItems:
+    #             #     print(sub_item)
+    #             the_file.write(', '.join(str(e) for e in subItems[0]) + " " + str(subItems[1]) + "\n")
+    #         print("\n")
 
+
+    with open('merged_sessions_data_final.csv', "a", newline='') as csvfile:
+        for item in mergedList:
+            wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+            item_name = [item.key]
+            wr.writerow(item_name)
             for subItems in item.scoredSequenceList:
-                print(subItems)
-                for sub_item in subItems:
-                    the_file.write(sub_item)
-                the_file.write("\n")
-            print("\n")
+                new_sub_item = []
+                new_sub_item.append(' ')
+                subItems[0].append(subItems[1])
+                new_sub_item.append(subItems[0])
+                wr = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_ALL)
+                wr.writerow(new_sub_item)
+
+    print('finished')
+
