@@ -1,3 +1,5 @@
 Django==1.11.4
 djangorestframework==3.6.4
 psycopg2
+pyodbc
+networkx==2.1
